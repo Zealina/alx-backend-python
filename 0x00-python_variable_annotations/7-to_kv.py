@@ -2,6 +2,9 @@
 """Create Tuple Annotations"""
 
 
-def to_kv(k: str, v: int | float) -> tuple[str, float]:
+from typing import Tuple
+
+
+def to_kv(k: str, v: int | float) -> Tuple[str, float]:
     """Create a Tuple based on annotation"""
     return (k, float(v))

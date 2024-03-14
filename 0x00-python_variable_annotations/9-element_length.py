@@ -2,9 +2,9 @@
 """Duck type function"""
 
 
-from typing import Sequence, Iterable
+from typing import Sequence, Iterable, List
 
 
-def element_length(lst: Iterable[Sequence]) -> list[tuple[Sequence, int]]:
+def element_length(lst: Iterable[Sequence]) -> List[tuple[Sequence, int]]:
     """Return the length og the list"""
     return [(i, len(i)) for i in lst]

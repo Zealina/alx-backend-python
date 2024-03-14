@@ -2,7 +2,10 @@
 """Sum a mixed list"""
 
 
-def sum_mixed_list(mxd_lst: list[int | float]) -> float:
+from typing import List
+
+
+def sum_mixed_list(mxd_lst: List[int | float]) -> float:
     """Reduce a list with integers and floats"""
     result: float = 0.0
     for a in mxd_lst:
