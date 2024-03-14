@@ -2,9 +2,12 @@
 """Define list of floats"""
 
 
-def sum_list(input_list: list[float]) -> float:
+from typing import List
+
+
+def sum_list(input_list: List[float]) -> float:
     """Reduce the lsit by addition and return"""
-    result: float = float(0)
+    result: float = 0.0
     for a in input_list:
         result += a
     return result
