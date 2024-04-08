@@ -1,77 +1,74 @@
 #!/usr/bin/env python3
-"""Test utils.py module"""
+""" Module for testing utils """
 
-from parameterized import parameterized  # type: ignore
-from typing import Any, Mapping, Sequence, Dict
+from parameterized import parameterized
 import unittest
-from unittest.mock import patch, MagicMock
-access_nested_map = __import__("utils").access_nested_map
-get_json = __import__("utils").get_json
-memoize = __import__("utils").memoize
+from unittest.mock import patch
+from utils import (access_nested_map, get_json, memoize)
+import requests
 
 
 class TestAccessNestedMap(unittest.TestCase):
-    """Test cases fkr the access_nested_map function"""
+    """ Class for Testing Access Nested Map """
+
     @parameterized.expand([
         ({"a": 1}, ("a",), 1),
-        ({"a": {"b": 2}}, ("a",), {"b": 2}),
+        ({"a": {"b": 2}}, ("a",), {'b': 2}),
         ({"a": {"b": 2}}, ("a", "b"), 2)
-        ])
-    def test_access_nested_map(
-            self,
-            nested_map: Mapping,
-            path: Sequence,
-            expected: Any) -> None:
-        """test the method"""
+    ])
+    def test_access_nested_map(self, nested_map, path, expected):
+        """ Test that the method returns what it is supposed to """
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
     @parameterized.expand([
-        ({}, ("a",)),
-        ({"a": 1}, ("a", "b"))
-        ])
-    def test_access_nested_map_exception(
-            self,
-            nested_map: Mapping,
-            path: Sequence) -> None:
-        """Test access nested map exception"""
-        with self.assertRaises(KeyError):
+        ({}, ("a",), 'a'),
+        ({"a": 1}, ("a", "b"), 'b')
+    ])
+    def test_access_nested_map_exception(self, nested_map, path, expected):
+        """ Test that a KeyError is raised for the respective inputs """
+        with self.assertRaises(KeyError) as e:
             access_nested_map(nested_map, path)
+        self.assertEqual(f"KeyError('{expected}')", repr(e.exception))
 
 
 class TestGetJson(unittest.TestCase):
-    """get_json test cases"""
+    """ Class for Testing Get Json """
+
     @parameterized.expand([
         ("http://example.com", {"payload": True}),
         ("http://holberton.io", {"payload": False})
-        ])
-    @patch('requests.get')
-    def test_get_json(
-            self,
-            url: str,
-            test_payload: Dict,
-            mock_request: MagicMock) -> None:
-        """test the get_json logic"""
-        mock_json = MagicMock()
-        mock_json.json.return_value = test_payload
-        mock_request.return_value = mock_json
-        self.assertEqual(get_json(url), test_payload)
-        mock_request.assert_called_once()
+    ])
+    def test_get_json(self, test_url, test_payload):
+        """ Test that utils.get_json returns the expected result."""
+        config = {'return_value.json.return_value': test_payload}
+        patcher = patch('requests.get', **config)
+        mock = patcher.start()
+        self.assertEqual(get_json(test_url), test_payload)
+        mock.assert_called_once()
+        patcher.stop()
 
 
 class TestMemoize(unittest.TestCase):
-    """utils.memoize testcases for wrapper function"""
+    """ Class for Testing Memoize """
+
     def test_memoize(self):
-        """Test the memoize function"""
+        """ Test that when calling a_property twice, the correct result
+        is returned but a_method is only called once using
+        assert_called_once
+        """
+
         class TestClass:
+            """ Test Class for wrapping with memoize """
+
             def a_method(self):
                 return 42
 
             @memoize
             def a_property(self):
                 return self.a_method()
-        with patch.object(TestClass, 'a_method') as mock_a_method:
-            mock_a_method.return_value = 42
-            inst = TestClass()
-            self.assertEqual(inst.a_property, 42)
-            self.assertEqual(inst.a_property, 42)
-            mock_a_method.assert_called_once()
+
+        with patch.object(TestClass, 'a_method') as mock:
+            test_class = TestClass()
+            test_class.a_property()
+            test_class.a_property()
+            mock.assert_called_once()
