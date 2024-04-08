@@ -22,13 +22,12 @@ class TestGithubOrgClient(unittest.TestCase):
         inst.org()
         mock_get_json.assert_called_once_with(org_url)
 
-    @parameterized.expand([
-        ({"repos_url": "https://hamilton.com"},)])
-    def test_public_repos_url(self, nary: Dict):
+    def test_public_repos_url(self):
         """Test the _public_repos_url"""
         with patch(
                 "client.GithubOrgClient.org",
                 new_callable=PropertyMock) as mocky:
-            inst = GithubOrgClient("hamilton")
-            mocky.return_value =nary["repos_url"]
+            nary = {"repos_url": "testing"}
+            mocky.return_value = nary
+            inst = GithubOrgClient("test")
             self.assertEqual(inst._public_repos_url, nary["repos_url"])
